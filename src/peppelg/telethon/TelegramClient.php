@@ -1,13 +1,18 @@
-<?php 
+<?php
+
 namespace peppelg\telethon;
+
 use peppelg\telethon\Process;
 
-class TelegramClient {
-    public function __construct($name, $api_id, $api_hash) {
+class TelegramClient
+{
+    public function __construct($name, $api_id, $api_hash)
+    {
         Process::write(['type' => 'new TelegramClient', 'name' => $name, 'api_id' => $api_id, 'api_hash' => $api_hash]);
         return Process::read();
     }
-    public function start() {
+    public function start()
+    {
         if (!$this->is_user_authorized()) {
             $phone = readline('Please enter your phone number: ');
             $request = $this->sign_in($phone);
@@ -26,15 +31,24 @@ class TelegramClient {
             return true;
         }
     }
-    public function add_event_handler($callback) { #broken
+    public function add_event_handler($callback)
+    { #broken
         if (is_callable($callback)) {
             Process::write(['type' => 'new callback']);
             var_dump(Process::read());
+            while (true) {
+                Process::write(['type' => 'getUpdate']);
+                $update = Process::read();
+                if ($update['type'] === 'event') {
+                    $callback($update['event']);
+                }
+            }
         } else {
             throw new \peppelg\telethon\TelethonException('Invalid callback');
         }
     }
-    public function __call($method, $args = null) {
+    public function __call($method, $args = null)
+    {
         if (isset($args[0]) and is_array($args[0])) {
             $args = $args[0];
         }

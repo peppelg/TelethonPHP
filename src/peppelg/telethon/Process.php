@@ -6,11 +6,11 @@ class Process
 {
     public static $process = null;
     public static $pipes = null;
-    public static function new()
+    public static function new($python)
     {
-        self::$process = proc_open('python ' . escapeshellarg(__DIR__ . '/php.py'), array(0 => array('pipe', 'r'), 1 => array('pipe', 'w')), self::$pipes);
+        self::$process = proc_open($python . ' ' . escapeshellarg(__DIR__ . '/php.py'), array(0 => array('pipe', 'r'), 1 => array('pipe', 'w')), self::$pipes);
         if (is_resource(self::$process)) {
-            register_shutdown_function(function() {
+            register_shutdown_function(function () {
                 \peppelg\telethon\Process::write(['type' => 'exit']);
                 \peppelg\telethon\Process::read();
             });
@@ -21,7 +21,7 @@ class Process
     }
     public static function write($array)
     {
-        return fwrite(self::$pipes[0], json_encode($array).PHP_EOL);
+        return fwrite(self::$pipes[0], json_encode($array) . PHP_EOL);
     }
     public static function read()
     {
